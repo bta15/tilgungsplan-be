@@ -19,4 +19,5 @@
 - [ ] Bei Bedarf DB
 - [ ] Bei Bedarf Security
 - [ ] Eingaben im Request validieren
+- [ ] gitignore ergänzen (.idea Ordner)
 - [ ] ...
