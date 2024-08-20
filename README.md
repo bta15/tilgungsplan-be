@@ -1,4 +1,4 @@
-### Dieses kleine Programm erstellt das durch die Eingaben
+### Dieses kleine Programm erstellt einen Tilgungsplan durch die Eingaben
 - des Darlehensbetrages
 - des Sollzinses (in Prozent)
 - der anfänglichen Tilgung (in Prozent)
