@@ -1,3 +1,5 @@
+# Tilgungsplan - Backend
+
 ### Dieses kleine Programm erstellt einen Tilgungsplan unter Berücksichtigung die Eingaben
 - des Darlehensbetrages
 - des Sollzinses (in Prozent)
@@ -14,9 +16,9 @@
   - oder das Frontend nutzen
 
 ### Weitere Entwicklungsmöglichkeiten:
+- [ ] Geldbeträge in Cent/BigDecimal (es gibt aktuell noch Rundungsfehler)
 - [ ] mehr Tests
 - [ ] Startdatum im Request optional machen und ansonsten das aktuelle Datum nehmen
-- [ ] Geldbeträge in Cent/BigDecimal
 - [ ] CORS richtig einstellen
 - [ ] Bei Bedarf Datenbank
 - [ ] Bei Bedarf Security
