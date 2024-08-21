@@ -42,16 +42,16 @@ public class TilgungsplanService {
         LocalDate folgeMonat = getEndOfMonth(tilgungsplanRequest.startdatum());
 
         for (int i = 0; i < monateGesamt; i++) {
-            double zinsenEuro = getZinsenInEuro(restschuld, tilgungsplanRequest.sollzinsProzent());
-            double tilgung = rate - zinsenEuro;
+            final double zinsenEuro = getZinsenInEuro(restschuld, tilgungsplanRequest.sollzinsProzent());
+            final double tilgung = roundNumber(rate - zinsenEuro, RoundingMode.DOWN);
             restschuld = restschuld - tilgung;
             folgeMonat = getEndOfMonth(folgeMonat.plusMonths(1));
             entries.add(new TilgungsplanEntry(
                     folgeMonat,
-                    roundNumber(restschuld * -1),
-                    roundNumber(zinsenEuro),
-                    roundNumber(tilgung),
-                    roundNumber(rate)));
+                    roundNumber(restschuld * -1, RoundingMode.UP),
+                    roundNumber(zinsenEuro, RoundingMode.HALF_UP),
+                    tilgung,
+                    roundNumber(rate, RoundingMode.HALF_UP)));
         }
 
         return entries;
@@ -59,14 +59,17 @@ public class TilgungsplanService {
 
     private TilgungsplanEnd getPlanEnde(final List<TilgungsplanEntry> tilgungsplanMonate) {
         return new TilgungsplanEnd(
-                roundNumber(tilgungsplanMonate.getLast().restschuldEuro()),
-                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::zinsenEuro).mapToDouble(Double::doubleValue).sum()),
-                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::tilgungAuszahlungEuro).mapToDouble(Double::doubleValue).sum()),
-                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::rateEuro).mapToDouble(Double::doubleValue).sum()));
+                roundNumber(tilgungsplanMonate.getLast().restschuldEuro(), RoundingMode.HALF_UP),
+                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::zinsenEuro).mapToDouble(Double::doubleValue).sum(), RoundingMode.HALF_UP),
+                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::tilgungAuszahlungEuro).mapToDouble(Double::doubleValue).sum(), RoundingMode.DOWN),
+                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::rateEuro).mapToDouble(Double::doubleValue).sum(), RoundingMode.HALF_UP));
     }
 
     private double getZinsenInEuro(final Double restschuldEuro, final Double zinsenProzent) {
-        return (restschuldEuro * zinsenProzent / 100) / 12;
+        BigDecimal restschuld = new BigDecimal(restschuldEuro);
+        BigDecimal zinsen = new BigDecimal(zinsenProzent / 100);
+        return restschuld.multiply(zinsen)
+                .divide(new BigDecimal(12), RoundingMode.HALF_DOWN).doubleValue();
     }
 
     private double getRate(final TilgungsplanRequest tilgungsplanRequest) {
@@ -79,9 +82,8 @@ public class TilgungsplanService {
         return date.withDayOfMonth(date.getMonth().length(date.isLeapYear()));
     }
 
-    private double roundNumber(final double number) {
-        return new BigDecimal(number).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    private double roundNumber(final double number, final RoundingMode roundingMode) {
+        return new BigDecimal(number).setScale(2, roundingMode).doubleValue();
     }
-
 
 }

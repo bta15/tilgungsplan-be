@@ -23,7 +23,7 @@ class TilgungsplanServiceTest {
         TilgungsplanResponse response = service.getTilgungsplan(request);
         assertThat(response.tilgungsplanMonate().size()).isEqualTo(121);
         assertThat(response.tilgungsplanMonate().getLast().datum().toString()).isEqualTo("2034-08-31");
-        assertThat(response.tilgungsplanMonate().getLast().restschuldEuro()).isEqualTo(-77743.71);
+        assertThat(response.tilgungsplanMonate().getLast().restschuldEuro()).isEqualTo(-77744.37);
         assertThat(response.tilgungsplanMonate().getLast().zinsenEuro()).isEqualTo(137.71);
         assertThat(response.tilgungsplanMonate().getLast().tilgungAuszahlungEuro()).isEqualTo(205.62);
         assertThat(response.tilgungsplanMonate().getLast().rateEuro()).isEqualTo(343.33);
