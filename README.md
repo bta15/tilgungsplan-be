@@ -1,22 +1,24 @@
-### Dieses kleine Programm erstellt einen Tilgungsplan durch die Eingaben
+### Dieses kleine Programm erstellt einen Tilgungsplan unter Berücksichtigung die Eingaben
 - des Darlehensbetrages
 - des Sollzinses (in Prozent)
 - der anfänglichen Tilgung (in Prozent)
 - der Zinsbindung (in Jahren)
 - den Tilgungsplan eines Darlehens mit gleichbleibender Rate erstellen kann
+- Startdatum
 
 ### Benutzung:
-- TilgungsplanApplication.java starten
+- ```TilgungsplanApplication.java``` starten
 - dann
-  - entweder in der Datei ```resources/static/http-beispiele.http``` befindet sich ein Beispiel-Request
+  - entweder das Request-Beispiel in der Datei ```resources/static/http-beispiele.http``` ausführen
   - oder mit Postman etc. Requests an den Endpoint schicken
-  - oder das/ein Frontend nutzen
+  - oder das Frontend nutzen
 
 ### Weitere Entwicklungsmöglichkeiten:
 - [ ] mehr Tests
+- [ ] Startdatum im Request optional machen und ansonsten das aktuelle Datum nehmen
 - [ ] Geldbeträge in Cent/BigDecimal
-- [ ] CORS richtig einstellen und Annotation aus der Ressource entfernen
-- [ ] Bei Bedarf DB
+- [ ] CORS richtig einstellen
+- [ ] Bei Bedarf Datenbank
 - [ ] Bei Bedarf Security
 - [ ] Eingaben im Request validieren
 - [ ] gitignore ergänzen (.idea Ordner)
