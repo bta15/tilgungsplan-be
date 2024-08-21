@@ -39,7 +39,7 @@ class TilgungsplanResourceTest {
         TilgungsplanResponse response = new TilgungsplanResponse(
                 List.of(new TilgungsplanEntry(LocalDate.now().minusMonths(1), 12345.0, 123.0, 123.0, 123.0)),
                 new TilgungsplanEnd(1234.0, 123.0, 123.0, 123.0));
-        when(service.getTilgungsplan(request)).thenReturn(response);
+        when(service.calculateTilgungsplan(request)).thenReturn(response);
 
         String requestBody = """
                 {
@@ -55,6 +55,6 @@ class TilgungsplanResourceTest {
                 .andDo(print())
                 .andExpect(status().isOk()); //TODO: hier könnte man weiter testen
 
-        verify(service).getTilgungsplan(any());
+        verify(service).calculateTilgungsplan(any());
     }
 }

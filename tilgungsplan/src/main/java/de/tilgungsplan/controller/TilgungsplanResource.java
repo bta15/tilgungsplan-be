@@ -24,6 +24,6 @@ public class TilgungsplanResource {
     public ResponseEntity<TilgungsplanResponse> getTilgungsplan(
             @RequestBody final TilgungsplanRequest tilgungsplanRequest
     ) {
-        return ResponseEntity.ok(tilgungsplanService.getTilgungsplan(tilgungsplanRequest));
+        return ResponseEntity.ok(tilgungsplanService.calculateTilgungsplan(tilgungsplanRequest));
     }
 }

@@ -12,10 +12,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.tilgungsplan.utils.DateUtils.getEndOfMonth;
+import static de.tilgungsplan.utils.NumberUtils.calculateProzentInEuro;
+import static de.tilgungsplan.utils.NumberUtils.round;
+
 @Service
 public class TilgungsplanService {
 
-    public TilgungsplanResponse getTilgungsplan(final TilgungsplanRequest tilgungsplanRequest) {
+    public TilgungsplanResponse calculateTilgungsplan(final TilgungsplanRequest tilgungsplanRequest) {
         final TilgungsplanEntry startZeile = getStartZeile(tilgungsplanRequest);
         final List<TilgungsplanEntry> tilgungsplanMonate = getTilgungsplanMonate(tilgungsplanRequest);
         final TilgungsplanEnd endeZeile = getPlanEnde(tilgungsplanMonate);
@@ -29,61 +33,51 @@ public class TilgungsplanService {
 
     private TilgungsplanEntry getStartZeile(final TilgungsplanRequest tilgungsplanRequest) {
         final LocalDate startDatum = getEndOfMonth(tilgungsplanRequest.startdatum());
-        final double darlehensbetragEuro = tilgungsplanRequest.darlehensbetragEuro() * -1;
-        return new TilgungsplanEntry(startDatum, darlehensbetragEuro, 0.0, darlehensbetragEuro, darlehensbetragEuro);
+        final BigDecimal darlehensbetragEuro = BigDecimal.valueOf(tilgungsplanRequest.darlehensbetragEuro()).negate();
+        return new TilgungsplanEntry(
+                startDatum,
+                darlehensbetragEuro.doubleValue(),
+                0.0,
+                darlehensbetragEuro.doubleValue(),
+                darlehensbetragEuro.doubleValue());
     }
 
     private List<TilgungsplanEntry> getTilgungsplanMonate(final TilgungsplanRequest tilgungsplanRequest) {
-        final int monateGesamt = 12 * tilgungsplanRequest.zinsbindungJahre();
-        final double rate = getRate(tilgungsplanRequest);
         final List<TilgungsplanEntry> entries = new ArrayList<>();
+        final int monateGesamt = 12 * tilgungsplanRequest.zinsbindungJahre();
+        final BigDecimal rate = getRate(tilgungsplanRequest);
 
-        double restschuld = tilgungsplanRequest.darlehensbetragEuro();
+        BigDecimal restschuld = BigDecimal.valueOf(tilgungsplanRequest.darlehensbetragEuro());
         LocalDate folgeMonat = getEndOfMonth(tilgungsplanRequest.startdatum());
 
         for (int i = 0; i < monateGesamt; i++) {
-            final double zinsenEuro = getZinsenInEuro(restschuld, tilgungsplanRequest.sollzinsProzent());
-            final double tilgung = roundNumber(rate - zinsenEuro, RoundingMode.DOWN);
-            restschuld = restschuld - tilgung;
+            final BigDecimal zinsenEuro = calculateProzentInEuro(restschuld, tilgungsplanRequest.sollzinsProzent());
+            final BigDecimal zinsenEuroGerundet = round(zinsenEuro, RoundingMode.HALF_UP);
+            final BigDecimal tilgung = round(rate.subtract(zinsenEuroGerundet), RoundingMode.DOWN);
+            restschuld = restschuld.subtract(tilgung);
             folgeMonat = getEndOfMonth(folgeMonat.plusMonths(1));
             entries.add(new TilgungsplanEntry(
                     folgeMonat,
-                    roundNumber(restschuld * -1, RoundingMode.UP),
-                    roundNumber(zinsenEuro, RoundingMode.HALF_UP),
-                    tilgung,
-                    roundNumber(rate, RoundingMode.HALF_UP)));
+                    round(restschuld.negate(), RoundingMode.HALF_UP).doubleValue(),
+                    zinsenEuroGerundet.doubleValue(),
+                    tilgung.doubleValue(),
+                    round(rate, RoundingMode.HALF_UP).doubleValue()));
         }
 
         return entries;
     }
 
+    private BigDecimal getRate(final TilgungsplanRequest tilgungsplanRequest) {
+        final BigDecimal zinsenEuro = calculateProzentInEuro(BigDecimal.valueOf(tilgungsplanRequest.darlehensbetragEuro()), tilgungsplanRequest.sollzinsProzent());
+        final BigDecimal anfaenglicheTilgungEuro = calculateProzentInEuro(BigDecimal.valueOf(tilgungsplanRequest.darlehensbetragEuro()), tilgungsplanRequest.anfaenglicheTilgungProzent());
+        return zinsenEuro.add(anfaenglicheTilgungEuro);
+    }
+
     private TilgungsplanEnd getPlanEnde(final List<TilgungsplanEntry> tilgungsplanMonate) {
         return new TilgungsplanEnd(
-                roundNumber(tilgungsplanMonate.getLast().restschuldEuro(), RoundingMode.HALF_UP),
-                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::zinsenEuro).mapToDouble(Double::doubleValue).sum(), RoundingMode.HALF_UP),
-                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::tilgungAuszahlungEuro).mapToDouble(Double::doubleValue).sum(), RoundingMode.DOWN),
-                roundNumber(tilgungsplanMonate.stream().map(TilgungsplanEntry::rateEuro).mapToDouble(Double::doubleValue).sum(), RoundingMode.HALF_UP));
+                round(BigDecimal.valueOf(tilgungsplanMonate.getLast().restschuldEuro()), RoundingMode.HALF_UP).doubleValue(),
+                round(BigDecimal.valueOf(tilgungsplanMonate.stream().map(TilgungsplanEntry::zinsenEuro).mapToDouble(Double::doubleValue).sum()), RoundingMode.HALF_UP).doubleValue(),
+                round(BigDecimal.valueOf(tilgungsplanMonate.stream().map(TilgungsplanEntry::tilgungAuszahlungEuro).mapToDouble(Double::doubleValue).sum()), RoundingMode.DOWN).doubleValue(),
+                round(BigDecimal.valueOf(tilgungsplanMonate.stream().map(TilgungsplanEntry::rateEuro).mapToDouble(Double::doubleValue).sum()), RoundingMode.HALF_UP).doubleValue());
     }
-
-    private double getZinsenInEuro(final Double restschuldEuro, final Double zinsenProzent) {
-        BigDecimal restschuld = new BigDecimal(restschuldEuro);
-        BigDecimal zinsen = new BigDecimal(zinsenProzent / 100);
-        return restschuld.multiply(zinsen)
-                .divide(new BigDecimal(12), RoundingMode.HALF_DOWN).doubleValue();
-    }
-
-    private double getRate(final TilgungsplanRequest tilgungsplanRequest) {
-        final double zinsenEuro = getZinsenInEuro(tilgungsplanRequest.darlehensbetragEuro(), tilgungsplanRequest.sollzinsProzent());
-        final double anfaenglicheTilgungEuro = getZinsenInEuro(tilgungsplanRequest.darlehensbetragEuro(), tilgungsplanRequest.anfaenglicheTilgungProzent());
-        return zinsenEuro + anfaenglicheTilgungEuro;
-    }
-
-    private LocalDate getEndOfMonth(final LocalDate date) {
-        return date.withDayOfMonth(date.getMonth().length(date.isLeapYear()));
-    }
-
-    private double roundNumber(final double number, final RoundingMode roundingMode) {
-        return new BigDecimal(number).setScale(2, roundingMode).doubleValue();
-    }
-
 }

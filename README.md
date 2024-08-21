@@ -16,12 +16,10 @@
   - oder das Frontend nutzen
 
 ### Weitere Entwicklungsmöglichkeiten:
-- [ ] Geldbeträge in Cent/BigDecimal (es gibt aktuell noch Rundungsfehler)
 - [ ] mehr Tests
 - [ ] Startdatum im Request optional machen und ansonsten das aktuelle Datum nehmen
 - [ ] CORS richtig einstellen
 - [ ] Bei Bedarf Datenbank
 - [ ] Bei Bedarf Security
 - [ ] Eingaben im Request validieren
-- [ ] gitignore ergänzen (.idea Ordner)
 - [ ] ...
