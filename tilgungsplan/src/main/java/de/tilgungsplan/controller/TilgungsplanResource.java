@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 
 @CrossOrigin // TODO: sollte später richtig gelöst werden
 @RestController
@@ -24,6 +26,16 @@ public class TilgungsplanResource {
     public ResponseEntity<TilgungsplanResponse> getTilgungsplan(
             @RequestBody final TilgungsplanRequest tilgungsplanRequest
     ) {
-        return ResponseEntity.ok(tilgungsplanService.calculateTilgungsplan(tilgungsplanRequest));
+        if (tilgungsplanRequest.startdatum() == null) {
+            return ResponseEntity.ok(tilgungsplanService.calculateTilgungsplan(
+                    new TilgungsplanRequest(
+                            tilgungsplanRequest.darlehensbetragEuro(),
+                            tilgungsplanRequest.sollzinsProzent(),
+                            tilgungsplanRequest.anfaenglicheTilgungProzent(),
+                            tilgungsplanRequest.zinsbindungJahre(),
+                            LocalDate.now())));
+        } else {
+            return ResponseEntity.ok(tilgungsplanService.calculateTilgungsplan(tilgungsplanRequest));
+        }
     }
 }

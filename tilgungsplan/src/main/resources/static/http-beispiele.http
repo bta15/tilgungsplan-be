@@ -10,3 +10,15 @@ Content-Type: application/json
   "startdatum": "2015-11-15"
 }
 ###
+
+### POST request für ein Beispiel-Tilgungsplan ohne Startdatum
+POST http://localhost:8080/tilgungsplan
+Content-Type: application/json
+
+{
+  "darlehensbetragEuro": 100000.0,
+  "sollzinsProzent": 2.12,
+  "anfaenglicheTilgungProzent": 2,
+  "zinsbindungJahre": 10
+}
+###
