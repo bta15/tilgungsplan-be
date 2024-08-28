@@ -1,6 +1,6 @@
 # Tilgungsplan - Backend
 
-### Dieses kleine Programm erstellt einen Tilgungsplan unter Berücksichtigung die Eingaben
+### Dieses kleine Programm erstellt einen Tilgungsplan unter Berücksichtigung der Eingaben
 - des Darlehensbetrages
 - des Sollzinses (in Prozent)
 - der anfänglichen Tilgung (in Prozent)
