@@ -17,10 +17,10 @@
 
 ### Weitere Entwicklungsmöglichkeiten:
 - [ ] mehr Tests
-- [x] Startdatum im Request optional machen und ansonsten das aktuelle Datum nehmen
 - [ ] CORS richtig einstellen
 - [ ] Bei Bedarf Datenbank
 - [ ] Bei Bedarf Security
 - [ ] Eingaben im Request validieren
 - [ ] PDF-Dowload ermöglichen
+- [x] Startdatum im Request optional machen und ansonsten das aktuelle Datum nehmen
 - [ ] ...
